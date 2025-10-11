@@ -8,7 +8,6 @@ app = FastAPI(
     version="1.0.0"
 )
 
-# Configurar CORS
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],
@@ -17,13 +16,11 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# Incluir routers
 app.include_router(health.router)
 app.include_router(species.router)
 
 @app.get("/")
 async def root():
-    """Endpoint raíz con información básica de la API"""
     return {
         "message": "Agent-MS API está funcionando",
         "version": "1.0.0",

@@ -9,7 +9,6 @@ gemini_service = GeminiService()
 
 @router.post("/identify", response_model=SpeciesIdentification)
 async def identify_species(file: UploadFile = File(...)):
-    # Validar tipo de archivo
     if file.content_type not in ["image/jpeg", "image/png"]:
         raise HTTPException(
             status_code=400, 
