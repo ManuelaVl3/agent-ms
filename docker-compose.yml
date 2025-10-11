@@ -1,0 +1,12 @@
+version: '3.8'
+
+services:
+  agent-ms:
+    build: .
+    ports:
+      - "8000:8000"
+    environment:
+      - GEMINI_API_KEY=AIzaSyBexMJBcecjK2-NSKe419qR9uhIFGriK2c
+    volumes:
+      - .:/app
+    restart: unless-stopped
