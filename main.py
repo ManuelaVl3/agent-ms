@@ -1,6 +1,6 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from app.routers import health, species
+from app.routers import health, species, observations
 
 app = FastAPI(
     title="Agent-MS",
@@ -18,6 +18,7 @@ app.add_middleware(
 
 app.include_router(health.router)
 app.include_router(species.router)
+app.include_router(observations.router)
 
 @app.get("/")
 async def root():
@@ -26,7 +27,8 @@ async def root():
         "version": "1.0.0",
         "docs": "/docs",
         "health": "/health",
-        "identify_species": "/species/identify"
+        "identify_species": "/species/identify",
+        "query_observations": "/observations/query"
     }
 
 if __name__ == "__main__":
