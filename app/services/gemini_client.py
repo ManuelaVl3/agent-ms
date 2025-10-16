@@ -56,6 +56,55 @@ def process_query_with_gemini(query: str):
     except Exception as e:
         return {"error": f"Error procesando consulta: {str(e)}"}
 
+
+def generate_natural_response(query: str, tool_used: str, results: list) -> str:
+    """Genera una respuesta natural basada en los resultados encontrados"""
+    model = setup_gemini()
+    
+    if not results:
+        return f"No encontré observaciones relacionadas con tu consulta: '{query}'. Intenta con otros términos de búsqueda."
+    
+    context = f"""
+    Consulta del usuario: "{query}"
+    Herramienta utilizada: {tool_used}
+    Número de observaciones encontradas: {len(results)}
+    
+    Observaciones encontradas:
+    """
+    
+    for i, obs in enumerate(results[:5]):
+        context += f"""
+    {i+1}. {obs['species']['common_name']} ({obs['species']['scientific_name']})
+        - Ubicación: {obs['location']['location']}
+        - Descripción: {obs['description'][:100]}...
+        - Usuario: {obs['user_id']}
+        """
+    
+    if len(results) > 5:
+        context += f"\n... y {len(results) - 5} observaciones más."
+    
+    prompt = f"""
+    Basándote en esta información sobre observaciones de especies animales, genera una respuesta natural y amigable para el usuario.
+    
+    {context}
+    
+    La respuesta debe:
+    - Ser conversacional y amigable
+    - Mencionar cuántas observaciones se encontraron
+    - Destacar las especies más interesantes o comunes
+    - Mencionar algunas ubicaciones donde se observaron
+    - Ser concisa pero informativa
+    - Usar un tono natural como si fueras un experto en observación de animales
+    
+    Responde únicamente con el texto de la respuesta, sin formato adicional.
+    """
+    
+    try:
+        response = model.generate_content(prompt)
+        return response.text.strip()
+    except Exception as e:
+        return f"Encontré {len(results)} observaciones relacionadas con tu consulta. ¡Aquí tienes los resultados!"
+
 TOOL_NAME_MAP = {
     "GetAllObservations": "get_all_observations",
     "GetObservationsBySpecies": "get_observations_by_species",
@@ -109,6 +158,14 @@ async def main(prompt):
                         print("✅ Respuesta estructurada obtenida")
                         response_data = result.structuredContent
                         response_data["tool_used"] = tool_name_on_server
+                        
+                        if "result" in response_data and response_data["result"]:
+                            print("🤖 Generando respuesta natural...")
+                            natural_response = generate_natural_response(prompt, tool_name_on_server, response_data["result"])
+                            response_data["answer"] = natural_response
+                        else:
+                            response_data["answer"] = f"No encontré observaciones relacionadas con tu consulta: '{prompt}'. Intenta con otros términos de búsqueda."
+                        
                         return response_data
                     else:
                         print("✅ Respuesta de texto obtenida")
