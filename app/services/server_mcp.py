@@ -57,7 +57,7 @@ class AppContext:
 @asynccontextmanager
 async def app_lifespan(server: FastMCP) -> AsyncIterator[AppContext]:
     print("🔌 Conectando a la base de datos PostgreSQL observations_db...")
-    print(f"   Host: 127.0.0.1:5432")
+    print(f"   Host: host.docker.internal:5432")
     print(f"   Database: observations_db")
     print(f"   User: postgres")
     
@@ -66,7 +66,7 @@ async def app_lifespan(server: FastMCP) -> AsyncIterator[AppContext]:
             user="postgres",
             password="1234",
             database="observations_db",
-            host="127.0.0.1",
+            host="host.docker.internal",
             port=5432,
         )
         print("✅ Pool de conexiones a PostgreSQL observations_db creado.")
